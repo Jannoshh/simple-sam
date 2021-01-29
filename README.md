@@ -6,7 +6,6 @@ Sharpness-Aware Minimization for Efficiently Improving Generalization
 Using SAM in your training loop is easy:
 
 ```python
-import tensorflow as tf
 from sam import SAM
 ...
 
