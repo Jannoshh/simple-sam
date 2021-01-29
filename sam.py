@@ -1,34 +1,25 @@
 import tensorflow as tf
 
-def get_training_loop(model, loss_object, optimizer, loss_metric=None, accuracy_metric=None):
 
-    @tf.function
-    def train_step_SAM(images, labels):
-        with tf.GradientTape() as tape:
-            predictions = model(images, training=True)
-            loss = loss_object(labels, predictions)
-        gradients = tape.gradient(loss, model.trainable_variables)
-        rho = 0.05
-        grad_norm = tf.linalg.global_norm(model.trainable_variables)
-        e_ws = []
-        for i in range(len(model.trainable_variables)):
-            e_w = gradients[i] * rho / (grad_norm + 1e-12)
-            model.trainable_variables[i].assign_add(e_w)
-            e_ws.append(e_w)
+class SAM():
+    def __init__(self, base_optimizer, rho=0.05):
+        assert rho >= 0.0, f"Invalid rho, should be non-negative: {rho}"
+        
+        self.rho = rho
+        self.base_optimizer = base_optimizer
 
-        with tf.GradientTape() as tape:
-            predictions = model(images, training=True)
-            loss = loss_object(labels, predictions)
-        gradients = tape.gradient(loss, model.trainable_variables)
-        for i in range(len(model.trainable_variables)):
-            model.trainable_variables[i].assign_add(-e_ws[i])
-        optimizer.apply_gradients(zip(gradients, model.trainable_variables))
+    def first_step(self, gradients, trainable_variables):
+        self.e_ws = []
+        grad_norm = tf.linalg.global_norm(trainable_variables)
+        for i in range(len(trainable_variables)):
+            e_w = gradients[i] * self.rho / (grad_norm + 1e-12)
+            trainable_variables[i].assign_add(e_w)
+            self.e_ws.append(e_w)
 
-        if loss_metric:
-            loss_metric(loss)
-        if accuracy_metric:
-            accuracy_metric(labels, predictions)
 
-    return train_step_SAM
-
+    def second_step(self, gradients, trainable_variables):
+        for i in range(len(trainable_variables)):
+            trainable_variables[i].assign_add(-self.e_ws[i])
+        # do the actual "sharpness-aware" update
+        self.base_optimizer.apply_gradients(zip(gradients, trainable_variables))
 
