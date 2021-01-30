@@ -5,7 +5,7 @@ Sharpness-Aware Minimization for Efficiently Improving Generalization
 
 This is an **unofficial** repository for [Sharpness-Aware Minimization for Efficiently Improving Generalization](https://arxiv.org/abs/2010.01412).
 
-The implementation is in Tensorflow 2 and is heavily inspired by [davda54's PyTorch implementation](https://github.com/davda54/sam).
+The implementation uses Tensorflow 2 and is heavily inspired by [davda54's PyTorch implementation](https://github.com/davda54/sam).
 
 ## Usage
 
