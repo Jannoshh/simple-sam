@@ -2,8 +2,13 @@
 Sharpness-Aware Minimization for Efficiently Improving Generalization
 
 -----------
+This is an **unofficial** repository for [Sharpness-Aware Minimization for Efficiently Improving Generalization](https://arxiv.org/abs/2010.01412). <br> <br>
+<ins>Shortened abstract:</ins> <br>
+Optimizing only the training loss value, as is commonly done, can easily lead to suboptimal model quality. Motivated by the connection between
+geometry of the loss landscape and generalization, SAM is a novel, effective procedure for instead simultaneously minimizing loss value
+and loss sharpness. In particular, Sharpness-Aware Minimization (SAM), seeks
+parameters that lie in neighborhoods having uniformly low loss, an optimization problem on which gradient descent can be performed efficiently.
 
-This is an **unofficial** repository for [Sharpness-Aware Minimization for Efficiently Improving Generalization](https://arxiv.org/abs/2010.01412).
 
 The implementation uses Tensorflow 2 and is heavily inspired by [davda54's PyTorch implementation](https://github.com/davda54/sam).
 
