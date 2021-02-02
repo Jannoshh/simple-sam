@@ -18,7 +18,6 @@ The implementation uses Tensorflow 2 and is heavily inspired by [davda54's PyTor
 | A sharp minimum to which a ResNet trained with SGD converged | A wide minimum to which the same ResNet trained with SAM converged. |
 
 
-
 ## Usage
 
 Using SAM is easy in custom training loops:
@@ -56,4 +55,35 @@ for x, y in dataset:
 ...
 ```
 
+
+## Documentation
+
+#### `SAM.__init__`
+
+| **Argument**    | **Description** |
+| :-------------- | :-------------- |
+| `base_optimizer` (tf.keras.optimizers) | underlying optimizer that does the "sharpness-aware" update |
+| `rho` (float, optional)           | size of the neighborhood for computing the max loss *(default: 0.05)* |
+
 <br>
+<br>
+
+#### `SAM.first_step`
+
+Performs the first optimization step that finds the weights with the highest loss in the local `rho`-neighborhood.
+
+| **Argument**    | **Description** |
+| :-------------- | :-------------- |
+| `gradients`  | gradients computed by the first backward pass |
+| `trainable_parameters` | model parameters to be trained |
+
+<br>
+
+#### `SAM.second_step`
+
+Performs the second optimization step that updates the original weights with the gradient from the (locally) highest point in the loss landscape.
+
+| **Argument**    | **Description** |
+| :-------------- | :-------------- |
+| `gradients`  | gradients computed by the second backward pass |
+| `trainable_parameters` | model parameters to be trained |
