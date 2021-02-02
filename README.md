@@ -12,6 +12,13 @@ parameters that lie in neighborhoods having uniformly low loss, an optimization 
 
 The implementation uses Tensorflow 2 and is heavily inspired by [davda54's PyTorch implementation](https://github.com/davda54/sam).
 
+
+|  ![fig](figures/no_sam.PNG)  | ![fig](figures/with_sam.PNG) | 
+|:----------:|:-----------:|
+| A sharp minimum to which a ResNet trained with SGD converged | A wide minimum to which the same ResNet trained with SAM converged. |
+
+
+
 ## Usage
 
 Using SAM is easy in custom training loops:
