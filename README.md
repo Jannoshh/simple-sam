@@ -55,6 +55,27 @@ for x, y in dataset:
 ...
 ```
 
+If you want to use the Keras API:
+
+```python
+...
+
+from sam import sam_train_step
+
+# override the train_step function of the keras model
+class YourModel(tf.keras.Model):
+    def train_step(self, data):
+        return sam_train_step(self, data)
+
+inputs = Input(...)
+outputs = ...
+model = YourModel(inputs, outputs)
+
+model.compile(...)
+model.fit(x_train, y_train, epochs=3)
+
+...
+```
 
 ## Documentation
 
