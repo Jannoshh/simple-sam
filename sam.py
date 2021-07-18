@@ -26,16 +26,20 @@ class SAM():
 
 # if you want to use model.fit(), override the train_step method of a model with this function, example is mnist_example_keras_fit.
 # for customization see https://www.tensorflow.org/guide/keras/customizing_what_happens_in_fit/
-def sam_train_step(self, data, rho=0.05):
+def sam_train_step(self, data, rho=0.05, eps=1e-12):
     # Unpack the data. Its structure depends on your model and
     # on what you pass to `fit()`.
-    x, y = data
+    if len(data) == 3:
+        x, y, sample_weight = data
+    else:
+        sample_weight = None
+        x, y = data
 
     with tf.GradientTape() as tape:
         y_pred = self(x, training=True)  # Forward pass
         # Compute the loss value
         # (the loss function is configured in `compile()`)
-        loss = self.compiled_loss(y, y_pred, regularization_losses=self.losses)
+        loss = self.compiled_loss(y, y_pred, sample_weight=sample_weight, regularization_losses=self.losses)
 
     # Compute gradients
     trainable_vars = self.trainable_variables
@@ -45,7 +49,7 @@ def sam_train_step(self, data, rho=0.05):
     e_ws = []
     grad_norm = tf.linalg.global_norm(gradients)
     for i in range(len(trainable_vars)):
-        e_w = gradients[i] * rho / (grad_norm + 1e-12)
+        e_w = gradients[i] * rho / (grad_norm + eps)
         trainable_vars[i].assign_add(e_w)
         e_ws.append(e_w)
 
@@ -53,15 +57,20 @@ def sam_train_step(self, data, rho=0.05):
         y_pred = self(x, training=True)  # Forward pass
         # Compute the loss value
         # (the loss function is configured in `compile()`)
-        loss = self.compiled_loss(y, y_pred, regularization_losses=self.losses)
+        loss = self.compiled_loss(y, y_pred, sample_weight=sample_weight, regularization_losses=self.losses)
+        
     trainable_vars = self.trainable_variables
     gradients = tape.gradient(loss, trainable_vars)
 
     for i in range(len(trainable_vars)):
-        trainable_vars[i].assign_add(-e_ws[i])
+        trainable_vars[i].assign_sub(e_ws[i])
     self.optimizer.apply_gradients(zip(gradients, trainable_vars))
-    # Update metrics (includes the metric that tracks the loss)
-    self.compiled_metrics.update_state(y, y_pred)
-    # Return a dict mapping metric names to current value
+
+    # Update the metrics.
+    # Metrics are configured in `compile()`.
+    self.compiled_metrics.update_state(y, y_pred, sample_weight=sample_weight)
+
+    # Return a dict mapping metric names to current value.
+    # Note that it will include the loss (tracked in self.metrics).
     return {m.name: m.result() for m in self.metrics}
 
