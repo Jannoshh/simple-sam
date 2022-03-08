@@ -48,8 +48,9 @@ def sam_train_step(self, data, rho=0.05, eps=1e-12):
     # first step
     e_ws = []
     grad_norm = tf.linalg.global_norm(gradients)
+    ew_multiplier = rho / (grad_norm + eps)
     for i in range(len(trainable_vars)):
-        e_w = gradients[i] * rho / (grad_norm + eps)
+        e_w = tf.math.multiply(gradients[i], ew_multiplier)
         trainable_vars[i].assign_add(e_w)
         e_ws.append(e_w)
 
